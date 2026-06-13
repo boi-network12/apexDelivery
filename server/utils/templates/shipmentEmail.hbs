@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipment Confirmation - Apex Shipping Co.</title>
+  <!-- Include Montserrat font for better text logo rendering (with fallback) -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f4f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333333;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 640px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(90deg, #0047AB 0%, #007BFF 100%);
+      color: #ffffff;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .content {
+      padding: 30px;
+      font-size: 16px;
+    }
+    .content p {
+      margin: 0 0 15px;
+    }
+    .tracking-info {
+      background-color: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 25px 0;
+      border: 1px solid #e2e8f0;
+    }
+    .tracking-info h3 {
+      margin: 0 0 15px;
+      font-size: 20px;
+      color: #0047AB;
+      font-weight: 600;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 30px;
+      background-color: #0047AB;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #003087;
+    }
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+    .details-table td {
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .details-table .label {
+      background-color: #f8fafc;
+      font-weight: 600;
+      width: 40%;
+    }
+    .footer {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      padding: 20px;
+      border-top: 1px solid #e2e8f0;
+      background-color: #f8fafc;
+    }
+    .footer a {
+      color: #0047AB;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media only screen and (max-width: 600px) {
+      .container {
+        margin: 20px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+      }
+      .button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      .logo-text span:first-child {
+        font-size: 24px;
+      }
+      .logo-text span:last-child {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with text-based logo -->
+    <div class="header">
+      <div class="logo-container">
+        {{#if logoUrl}}
+          <img src="{{logoUrl}}" alt="Apex Shipping Co. Icon" style="width: 30px; height: 30px;" />
+        {{/if}}
+        <div class="logo-text">
+          <span style="font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif; font-size: 28px; font-weight: 700; color: #ffffff;">Apex</span>
+          <span style="font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 400; color: #ffffff;">Shipping Co.</span>
+        </div>
+      </div>
+      <h1>Shipment Confirmation</h1>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+      <p>Dear <strong>{{receiverName}}</strong>,</p>
+      <p>We are pleased to inform you that a new shipment has been created for you by <strong>{{senderName}}</strong> with Apex Shipping Co. Below are the details of your shipment:</p>
+
+      <!-- Tracking information -->
+      <div class="tracking-info">
+        <h3>Tracking ID: {{trackingId}}</h3>
+        <a href="{{dashboardUrl}}" class="button">Track Your Shipment</a>
+      </div>
+
+      <!-- Shipment details table -->
+      <p><strong>Shipment Details</strong></p>
+      <table class="details-table">
+        <tr>
+          <td class="label">Sender</td>
+          <td>{{senderName}}</td>
+        </tr>
+        <tr>
+          <td class="label">Receiver</td>
+          <td>{{receiverName}}</td>
+        </tr>
+        <tr>
+          <td class="label">Weight</td>
+          <td>{{#if weight}}{{weight}}{{else}}N/A{{/if}}</td>
+        </tr>
+        <tr>
+          <td class="label">Delivery Type</td>
+          <td>{{#if deliveryType}}{{deliveryType}}{{else}}N/A{{/if}}</td>
+        </tr>
+        <tr>
+          <td class="label">Order Place</td>
+          <td>{{#if orderPlace}}{{orderPlace}}{{else}}N/A{{/if}}</td>
+        </tr>
+        <tr>
+          <td class="label">Recipient Address</td>
+          <td>{{#if recipientAddress}}{{recipientAddress}}{{else}}N/A{{/if}}</td>
+        </tr>
+        <tr>
+          <td class="label">Status</td>
+          <td>{{#if isComplete}}Delivered{{else}}Created{{/if}}</td>
+        </tr>
+      </table>
+
+      <p>You can monitor the progress of your shipment at any time using the tracking link above. If you have any questions or require assistance, please contact our support team at <a href="mailto:support@apexshippingco.com">support@apexshippingco.com</a>.</p>
+      <p>Thank you for choosing Apex Shipping Co. for your shipping needs.</p>
+      <p>Best regards,<br><strong>The Apex Shipping Co. Team</strong></p>
+    </div>
+
+    <!-- Footer with company details -->
+    <div class="footer">
+      <p>&copy; {{year}} Apex Shipping Co. All rights reserved.</p>
+      <p>
+        <a href="{{unsubscribeUrl}}">Unsubscribe</a> | 
+        <a href="{{contactUrl}}">Contact Us</a> | 
+        <a href="{{privacyUrl}}">Privacy Policy</a>
+      </p>
+      <p>Apex Shipping Co., 123 Logistics Way, Global City, GC 12345</p>
+    </div>
+  </div>
+</body>
+</html>
