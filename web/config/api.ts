@@ -1,4 +1,4 @@
-export const API = 'https://apex-delivery-backend.vercel.app'
+export const API = 'https://apex-delivery-backend-logic.vercel.app'
 
 // config/api.ts
 //  https://apexdelivery-backend.onrender.com
