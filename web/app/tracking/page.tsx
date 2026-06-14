@@ -571,7 +571,7 @@ const TrackingOrder = () => {
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Customer Support</p>
-                        <p className="font-medium text-gray-800">+1 (800) 555-0123</p>
+                        <p className="font-medium text-gray-800">+1 (000) 000-0000</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
@@ -580,7 +580,7 @@ const TrackingOrder = () => {
                       </div>
                       <div>
                         <p className="text-gray-500 text-xs">Email Us</p>
-                        <p className="font-medium text-gray-800">support@apexdelivery.com</p>
+                        <p className="font-medium text-gray-800">apexdelivery64@gmail.com</p>
                       </div>
                     </div>
                   </div>
