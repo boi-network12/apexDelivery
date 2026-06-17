@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from '@/types/user';
+import { User, UserInfo } from '@/types/user';
 import { LayoutGrid, LogOut, MapPin, Menu, PackagePlus, SearchIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,7 +8,7 @@ import React, { FC, JSX } from 'react'
 
 interface AdminSidebarProps {
     logout: () => void;
-    user: User | null;
+    user: UserInfo | null;
     sidebarLinks: {
       name: string,
       routes: string;
