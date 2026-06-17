@@ -3,18 +3,31 @@ const { generateCode } = require('../utils/generateCode');
 const { sendVerificationEmail } = require('../utils/email');
 const jwt = require('jsonwebtoken');
 
+// Array of allowed emails
+const allowedEmails = [
+  'kamdilichukwu2020@gmail.com',
+  'ofuanidonald20@gmail.com' // Add partner's email here
+];
+
 exports.requestVerificationCode = async (req, res, next) => {
   try {
-    const defaultEmail = 'kamdilichukwu2020@gmail.com';
+    const { email } = req.body; // Get email from request body
     
-    const user = await User.findOne({ email: defaultEmail });
+    // Check if email is in the allowed list
+    if (!email || !allowedEmails.includes(email)) {
+      return res.status(403).json({ 
+        message: 'Unauthorized email. Only authorized users can request OTP.' 
+      });
+    }
+    
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const code = generateCode(6); // Generate 6-digit code
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
+    const code = generateCode(6);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     user.verificationCode = {
       code,
@@ -25,14 +38,14 @@ exports.requestVerificationCode = async (req, res, next) => {
 
     await user.save();
     
-    const emailSent = await sendVerificationEmail(defaultEmail, code);
+    const emailSent = await sendVerificationEmail(email, code);
     
     if (!emailSent) {
       return res.status(500).json({ message: 'Failed to send verification email' });
     }
 
     res.status(200).json({ 
-      message: 'Please verify email: OTP sent to kamdi***@gmail.com' 
+      message: `Please verify email: OTP sent to ${email}` 
     });
   } catch (error) {
     next(error);
@@ -41,10 +54,16 @@ exports.requestVerificationCode = async (req, res, next) => {
 
 exports.verifyCode = async (req, res, next) => {
   try {
-    const { code } = req.body;
-    const defaultEmail = 'kamdilichukwu2020@gmail.com';
+    const { code, email } = req.body; // Get email from request body
     
-    const user = await User.findOne({ email: defaultEmail });
+    // Check if email is in the allowed list
+    if (!email || !allowedEmails.includes(email)) {
+      return res.status(403).json({ 
+        message: 'Unauthorized email. Only authorized users can verify.' 
+      });
+    }
+    
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -57,7 +76,6 @@ exports.verifyCode = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
-    // Update IP address and last login
     user.lastLogin = new Date();
     user.ipAddress = req.ip;
     user.isVerified = true;
@@ -74,7 +92,7 @@ exports.verifyCode = async (req, res, next) => {
       userInfo: {
         id: user._id,
         name: user.name,
-        email: 'kamdi***@gmail.com',
+        email: email,
         ipAddress: user.ipAddress,
         lastLogin: user.lastLogin
       }
@@ -87,7 +105,7 @@ exports.verifyCode = async (req, res, next) => {
 exports.getUserById = async (req, res, next) => {
   try {
     const userId = req.user.id; 
-    const user = await User.findById(userId).select('-password -verificationCode'); // Exclude sensitive fields
+    const user = await User.findById(userId).select('-password -verificationCode');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -98,7 +116,7 @@ exports.getUserById = async (req, res, next) => {
       userInfo: {
         id: user._id,
         name: user.name,
-        email: user.email, 
+        email: user.email, // Use actual email from database
         ipAddress: user.ipAddress,
         lastLogin: user.lastLogin,
         isVerified: user.isVerified
@@ -106,5 +124,12 @@ exports.getUserById = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// Optional: Helper to add new email to allowed list
+exports.addAllowedEmail = (email) => {
+  if (!allowedEmails.includes(email)) {
+    allowedEmails.push(email);
   }
 };

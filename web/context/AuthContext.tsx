@@ -1,4 +1,3 @@
-// frontend/context/AuthContext.tsx
 'use client';
 
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
@@ -16,8 +15,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     token: null,
     isAuthenticated: false,
   });
+  
+  // Store the email being used for login
+  const [loginEmail, setLoginEmail] = useState<string>('');
 
-  // Fetch user data from backend using stored token
   const fetchUser = useCallback(async () => {
     try {
       const token = authState.token || localStorage.getItem('token');
@@ -38,43 +39,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setAuthState({ user: null, token: null, isAuthenticated: false });
           localStorage.removeItem('user');
           localStorage.removeItem('token');
+          localStorage.removeItem('loginEmail');
         }
       }
     }
   }, [authState.token]);
 
-  // Load auth state from localStorage on mount
   useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    const storedEmail = localStorage.getItem('loginEmail');
 
-  if (storedUser && storedToken) {
-    setAuthState({
-      user: JSON.parse(storedUser),
-      token: storedToken,
-      isAuthenticated: true,
-    });
-    fetchUser(); // no args now ✅
-  }
-}, [fetchUser]); // 👈 dependency added
+    if (storedUser && storedToken) {
+      setAuthState({
+        user: JSON.parse(storedUser),
+        token: storedToken,
+        isAuthenticated: true,
+      });
+      if (storedEmail) {
+        setLoginEmail(storedEmail);
+      }
+      fetchUser();
+    }
+  }, [fetchUser]);
 
-
-  // Update localStorage whenever authState changes
   useEffect(() => {
     if (authState.user && authState.token) {
       localStorage.setItem('user', JSON.stringify(authState.user));
       localStorage.setItem('token', authState.token);
+      if (loginEmail) {
+        localStorage.setItem('loginEmail', loginEmail);
+      }
     } else {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      localStorage.removeItem('loginEmail');
     }
-  }, [authState]);
+  }, [authState, loginEmail]);
 
-
-  // Request OTP
-  const requestOtp = async () => {
+  // Request OTP with email
+  const requestOtp = async (email: string) => {
     try {
-      const response = await axios.post(`${API}/api/users/request-otp`);
+      const response = await axios.post(`${API}/api/users/request-otp`, { email });
+      setLoginEmail(email);
       return { success: true, message: response.data.message };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -87,10 +94,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ Verify OTP and update auth state
-  const verifyOtp = async (code: string) => {
+  // Verify OTP with email
+  const verifyOtp = async (code: string, email: string) => {
     try {
-      const response = await axios.post(`${API}/api/users/verify-otp`, { code });
+      const response = await axios.post(`${API}/api/users/verify-otp`, { code, email });
       const { token, userInfo } = response.data;
 
       setAuthState({
@@ -117,21 +124,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       token: null,
       isAuthenticated: false,
     });
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    router.replace("/")
+    setLoginEmail('');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("loginEmail");
+    router.replace("/");
   };
 
-
   return (
-    <AuthContext.Provider value={{ authState, setAuthState, logout, fetchUser, verifyOtp, requestOtp  }}>
+    <AuthContext.Provider value={{ 
+      authState, 
+      setAuthState, 
+      logout, 
+      fetchUser, 
+      verifyOtp, 
+      requestOtp,
+      loginEmail,
+      setLoginEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-
-// Custom hook to use AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
