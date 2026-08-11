@@ -7,6 +7,7 @@ exports.createShipment = async (req, res, next) => {
     // Initialize default status structure
     const shipmentData = {
       ...req.body,
+      createdBy: req.user.id,
       status: {
         inTransit: { status: 'pending' },
         layover: { status: 'pending' },
@@ -200,13 +201,29 @@ exports.getShipmentByTrackingId = async (req, res, next) => {
   }
 };
 
+
 exports.getAllShipments = async (req, res, next) => {
   console.log('Received request for getAllShipments');
   try {
-    const shipments = await Shipment.find().select('-__v').lean();
-    if (!shipments || shipments.length === 0) {
-      return res.status(404).json({ message: 'No shipments found' });
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ 
+        message: 'Authentication required to view shipments' 
+      });
     }
+
+    const shipments = await Shipment.find({ createdBy: req.user.id })
+        .select('-__v')
+        .lean()
+        .populate('createdBy', 'name email');
+
+    if (!shipments || shipments.length === 0) {
+      return res.status(200).json({ 
+        message: 'No shipments found',
+        shipments: [] 
+      });
+    }
+    
     res.status(200).json({
       message: 'Shipments fetched successfully',
       shipments,

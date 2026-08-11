@@ -131,7 +131,14 @@ export const ShipmentProvider = ({ children }: { children: React.ReactNode }) =>
   // Fetch all shipments
    const getAllShipments = useCallback(async (): Promise<ShipmentResponse> => {
     try {
-      const response = await axios.get(`${API}/api/shipments`);
+      // Add authentication header if user is logged in
+      const headers: Record<string, string> = {};
+      if (authState.isAuthenticated && authState.token) {
+        headers.Authorization = `Bearer ${authState.token}`;
+      }
+
+
+      const response = await axios.get(`${API}/api/shipments`, { headers });
       const shipments = response.data.shipments || []; // Ensure shipments is an array
       setShipments(shipments);
 
@@ -141,24 +148,32 @@ export const ShipmentProvider = ({ children }: { children: React.ReactNode }) =>
         shipments,
       };
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        if (err.response?.status === 404) {
-          // Handle empty shipment list gracefully
-          setShipments([]);
-          return {
-            success: true, // Treat as success since an empty list is valid
-            message: 'No shipments found',
-            shipments: [],
-          };
-        }
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 401) {
+        // Unauthorized - clear shipments and return appropriate message
+        setShipments([]);
         return {
           success: false,
-          message: err.response?.data?.message || 'Failed to fetch shipments',
+          message: 'Please log in to view shipments',
+          shipments: [],
         };
       }
-      return { success: false, message: 'Unexpected error occurred' };
+      if (err.response?.status === 404) {
+        setShipments([]);
+        return {
+          success: true,
+          message: 'No shipments found',
+          shipments: [],
+        };
+      }
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to fetch shipments',
+      };
     }
-  }, []);
+    return { success: false, message: 'Unexpected error occurred' };
+  }
+}, [authState.isAuthenticated, authState.token]);
 
   // Load shipments on mount if authenticated
   useEffect(() => {

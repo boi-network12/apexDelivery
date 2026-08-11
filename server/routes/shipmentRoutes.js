@@ -17,6 +17,6 @@ router.put('/:id', authMiddleware, updateShipment); // Update a shipment by ID
 router.delete('/:id', authMiddleware, deleteShipment); // Delete a shipment by ID
 router.get('/:id', authMiddleware, getShipment); // Get a shipment by ID
 router.get('/tracking/:trackingId', getShipmentByTrackingId); // Get a shipment by tracking ID (no auth)
-router.get('/', getAllShipments); // Fetch all shipments (no auth)
+router.get('/', authMiddleware, getAllShipments); // Get all shipments for the authenticated user
 
 module.exports = router;

@@ -79,6 +79,11 @@ const shipmentSchema = new mongoose.Schema({
       paymentAmount: { type: String },
     },
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 }, { timestamps: true });
 
 // Fix the toJSON transform

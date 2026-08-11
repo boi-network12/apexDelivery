@@ -76,22 +76,28 @@ const Packages = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchShipments = async () => {
-      setLoading(true);
-      try {
-        const response = await getAllShipments();
-        if (!response.success && response.message !== 'No shipments found') {
-          setError(response.message);
-        }
-      } catch (err) {
-        setError('Failed to fetch shipments');
-        console.error('Fetch shipments error:', err);
-      } finally {
-        setLoading(false);
+  const fetchShipments = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllShipments();
+      // Check if the response indicates authentication is needed
+      if (!response.success && response.message === 'Please log in to view shipments') {
+        setError('Please log in to view your shipments');
+      } else if (!response.success && response.message !== 'No shipments found') {
+        setError(response.message);
+      } else {
+        // Clear any previous errors if successful or no shipments
+        setError(null);
       }
-    };
-    fetchShipments();
-  }, [getAllShipments]);
+    } catch (err) {
+      setError('Failed to fetch shipments');
+      console.error('Fetch shipments error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchShipments();
+}, [getAllShipments]);
 
   const openEditModal = (shipment: Shipment) => {
     setSelectedShipment(shipment);
