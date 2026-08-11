@@ -24,6 +24,10 @@ const defaultUsers = [
     name: 'Donald', // Add partner's name here
     email: 'ofuanidonald20@gmail.com', // Add partner's email here
     password: 'DonaldPass123#', // Add partner's password here (make it secure)
+  },{
+    name: "Pablo",
+    email: "azamexico630@gmail.com",
+    password: "PABLO2222"
   }
 ];
 
