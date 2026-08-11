@@ -27,6 +27,26 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const s1 = document.createElement("script");
+    const s0 = document.getElementsByTagName("script")[0];
+
+    s1.async = true;
+    s1.src = "https://embed.tawk.to/6a7b6b5c73934d1d3e07ba14/1jvp1mp90";
+    s1.charset = "UTF-8";
+    s1.setAttribute("crossorigin", "*");
+
+    if (s0?.parentNode) {
+      s0.parentNode.insertBefore(s1, s0);
+    }
+
+    return () => {
+      if (s1.parentNode) {
+        s1.parentNode.removeChild(s1);
+      }
+    };
+  }, []);
+
   // scroll to top
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
