@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 // Array of allowed emails
 const allowedEmails = [
   'kamdilichukwu2020@gmail.com',
-  'ofuanidonald20@gmail.com' // Add partner's email here
+  'ofuanidonald20@gmail.com',
+  'azamexico630@gmail.com'
 ];
 
 exports.requestVerificationCode = async (req, res, next) => {
